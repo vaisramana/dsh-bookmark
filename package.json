@@ -1,0 +1,60 @@
+{
+  "name": "dsh-bookmark",
+  "version": "0.1.0",
+  "description": "Minimalist session bookmarks and text/table highlights for DeepSeek Harness.",
+  "license": "MIT",
+  "type": "module",
+  "icon": "icon.svg",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaisramana/dsh-bookmark.git"
+  },
+  "homepage": "https://github.com/vaisramana/dsh-bookmark#readme",
+  "bugs": {
+    "url": "https://github.com/vaisramana/dsh-bookmark/issues"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "bookmark",
+    "highlight",
+    "notes"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-workspace",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  }
+}
