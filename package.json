@@ -1,6 +1,6 @@
 {
   "name": "dsh-bookmark",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Minimalist session bookmarks and text/table highlights for DeepSeek Harness.",
   "license": "MIT",
   "type": "module",

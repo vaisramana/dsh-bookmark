@@ -7,6 +7,7 @@ Minimalist session bookmarks, text/table highlights, and cross-session bookmark 
 ## Features
 
 - **Single-action Right-Click `Bookmark`** — Select any text passage, multi-paragraph block, or table (`<table>`) in a conversation and right-click `Bookmark`. It highlights the selection in place and adds it to the session's right-sidebar Bookmark tab.
+- **In-Conversation Find (`⌘ + F` / `Ctrl + F`)** — Press `⌘ + F` (or click the `Find` pill above the composer) to open a Safari-style floating find bar that highlights all matches in the current conversation and jumps between them with `Enter` / `Shift + Enter`.
 - **Inline Notes** — Each bookmark card includes a borderless inline note field. Type a note immediately after bookmarking or click any card's note line later; saves automatically on blur or `Enter`.
 - **Non-destructive Highlights** — Uses the browser's native [CSS Custom Highlight API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API) (`::highlight(dsh-bm-mark)`) with offset + surrounding context recovery. Never mutates React-managed Markdown DOM.
 - **Session Right-Sidebar Panel** — Docked in DSH's native right sidebar (`sidebar.right.pane.tab`) and accessible from the composer pill (`Bookmarks`). Click any bookmark to scroll to and highlight the passage in the conversation, or quote it into the input box.

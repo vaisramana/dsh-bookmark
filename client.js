@@ -28,11 +28,17 @@ window.__ModuleLoader__.load({
       'guide.description': '当前会话中保存的段落、表格与注释',
       'pill.label': '书签',
       'pill.tip': '打开右侧书签栏',
+      'find.label': '查找',
+      'find.tip': '在当前会话中搜索内容 (⌘F)',
+      'find.placeholder': '在当前会话中查找…',
+      'find.prev': '上一个 (Shift+Enter)',
+      'find.next': '下一个 (Enter)',
+      'find.close': '关闭 (Esc)',
       'menu.bookmark': 'Bookmark',
       'menu.remove': '移除 Bookmark',
       'side.title': '书签',
       'side.allBtn': '全部会话',
-      'side.search': '搜索…',
+      'side.search': '过滤本会话书签…',
       'side.empty': '选中对话中的文本或表格，右键选择「Bookmark」即可高亮并保存至此处。',
       'side.noMatch': '无匹配结果',
       'side.locate': '定位',
@@ -60,11 +66,17 @@ window.__ModuleLoader__.load({
       'guide.description': 'Saved passages, tables, and notes in this session',
       'pill.label': 'Bookmarks',
       'pill.tip': 'Open session bookmarks',
+      'find.label': 'Find',
+      'find.tip': 'Find in current conversation (⌘F)',
+      'find.placeholder': 'Find in conversation…',
+      'find.prev': 'Previous (Shift+Enter)',
+      'find.next': 'Next (Enter)',
+      'find.close': 'Close (Esc)',
       'menu.bookmark': 'Bookmark',
       'menu.remove': 'Remove Bookmark',
       'side.title': 'Bookmarks',
       'side.allBtn': 'All Sessions',
-      'side.search': 'Search…',
+      'side.search': 'Filter bookmarks…',
       'side.empty': 'Select any text or table in the conversation and right-click "Bookmark" to save it here.',
       'side.noMatch': 'No matches',
       'side.locate': 'Locate',
@@ -92,12 +104,26 @@ window.__ModuleLoader__.load({
   color: inherit;
 }
 ::highlight(dsh-bm-active) {
-  background-color: rgba(255, 204, 0, 0.42);
+  background-color: rgba(255, 180, 0, 0.48);
   color: inherit;
-  text-decoration: underline rgba(217, 119, 6, 0.85) 1.5px;
+  text-decoration: underline rgba(217, 119, 6, 0.9) 2px;
   text-underline-offset: 3px;
 }
+::highlight(dsh-bm-search) {
+  background-color: rgba(56, 189, 248, 0.25);
+  color: inherit;
+}
+::highlight(dsh-bm-search-active) {
+  background-color: rgba(255, 159, 10, 0.62);
+  color: inherit;
+  text-decoration: underline #ff9f0a 2px;
+}
 
+.dshbm-dock-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 .dshbm-pill {
   display: inline-flex;
   align-items: center;
@@ -122,6 +148,69 @@ window.__ModuleLoader__.load({
   font-size: 11px;
   color: var(--dsw-alias-label-tertiary, #86868b);
   font-variant-numeric: tabular-nums;
+}
+
+/* Apple Safari style floating Find Bar */
+.dshbm-find-bar {
+  position: fixed;
+  top: calc(var(--dsh-frame-top-clearance, 48px) + 12px);
+  right: 24px;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 8px 0 10px;
+  border-radius: 9px;
+  background: var(--dsw-alias-bg-layer-1, rgba(36, 36, 38, 0.92));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--dsw-alias-border-l1, rgba(128, 128, 128, 0.24));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+  color: var(--dsw-alias-label-primary, #f5f5f7);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+}
+.dshbm-find-input {
+  width: 190px;
+  border: none;
+  background: transparent;
+  color: var(--dsw-alias-label-primary, #f5f5f7);
+  font-size: 13px;
+  outline: none;
+}
+.dshbm-find-input::placeholder {
+  color: var(--dsw-alias-label-tertiary, #86868b);
+}
+.dshbm-find-count {
+  font-size: 11.5px;
+  color: var(--dsw-alias-label-secondary, #86868b);
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+  min-width: 36px;
+  text-align: right;
+  user-select: none;
+}
+.dshbm-find-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #86868b);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.dshbm-find-btn:hover:not(:disabled) {
+  background: var(--dsw-alias-bg-layer-2, rgba(128, 128, 128, 0.16));
+  color: var(--dsw-alias-label-primary, #f5f5f7);
+}
+.dshbm-find-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 /* Apple macOS style minimal context menu */
@@ -499,6 +588,26 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function SearchSvg({ size = 14 }) {
+      return h(
+        'svg',
+        {
+          width: size,
+          height: size,
+          viewBox: '0 0 20 20',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: 1.6,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+          'aria-hidden': 'true',
+          style: { flexShrink: 0 },
+        },
+        h('circle', { cx: 8.5, cy: 8.5, r: 5.5 }),
+        h('path', { d: 'M13 13L17 17' })
+      )
+    }
+
     function ChevronRightSvg() {
       return h(
         'svg',
@@ -542,6 +651,7 @@ window.__ModuleLoader__.load({
         const parent = node.parentElement
         if (parent && parent.closest(EXCLUDED_SELECTOR)) continue
         const value = node.nodeValue || ''
+        if (!value) continue
         const start = text.length
         text += value
         segments.push({ node, start, end: text.length })
@@ -571,6 +681,29 @@ window.__ModuleLoader__.load({
       } catch {
         return undefined
       }
+    }
+
+    /**
+     * Resolve an arbitrary DOM (container, offset) boundary to an exact character offset
+     * inside `model.text`, even when `container` is an Element node (<tr>, <td>, <p>, etc.).
+     */
+    function offsetInModel(model, container, offset) {
+      const doc = container.ownerDocument || document
+      const probe = doc.createRange()
+      for (const seg of model.segments) {
+        if (seg.node === container) {
+          return seg.start + Math.max(0, Math.min(offset, seg.end - seg.start))
+        }
+        try {
+          probe.selectNodeContents(seg.node)
+          // comparePoint returns -1 if (container, offset) is before seg.node start,
+          // 0 if inside seg.node, 1 if after seg.node end.
+          const cmp = probe.comparePoint(container, offset)
+          if (cmp < 0) return seg.start
+          if (cmp === 0) return seg.start
+        } catch {}
+      }
+      return model.text.length
     }
 
     function extractTableFromSelection(message, range) {
@@ -605,39 +738,21 @@ window.__ModuleLoader__.load({
       const model = buildTextModel(message)
       if (model.segments.length === 0) return undefined
 
-      let start = 0
-      let end = model.text.length
-      let foundStart = false
-      for (const seg of model.segments) {
-        if (!foundStart) {
-          if (seg.node === range.startContainer) {
-            start = seg.start + range.startOffset
-            foundStart = true
-          } else if (range.intersectsNode(seg.node)) {
-            start = seg.start
-            foundStart = true
-          }
-        }
-        if (seg.node === range.endContainer) {
-          end = seg.start + range.endOffset
-          break
-        } else if (foundStart && range.intersectsNode(seg.node)) {
-          end = seg.end
-        }
-      }
+      let start = offsetInModel(model, range.startContainer, range.startOffset)
+      let end = offsetInModel(model, range.endContainer, range.endOffset)
 
-      if (!foundStart || end <= start) {
-        const rawQuote = range.toString().trim()
-        if (!rawQuote) return undefined
-        const idx = model.text.indexOf(rawQuote)
-        if (idx !== -1) {
-          start = idx
-          end = idx + rawQuote.length
+      const rawDisplay = range.toString().trim()
+      if (end <= start) {
+        if (!rawDisplay) return undefined
+        const span = resolveSpan(model.text, rawDisplay, '', '', 0)
+        if (span) {
+          start = span.start
+          end = span.end
         } else {
           return {
             start: 0,
-            end: rawQuote.length,
-            quote: rawQuote,
+            end: rawDisplay.length,
+            quote: rawDisplay,
             prefix: '',
             suffix: '',
             ...extractTableFromSelection(message, range),
@@ -645,7 +760,8 @@ window.__ModuleLoader__.load({
         }
       }
 
-      const quote = model.text.slice(start, end)
+      const modelSlice = model.text.slice(start, end)
+      const quote = rawDisplay || modelSlice
       if (!quote.trim()) return undefined
       const prefix = model.text.slice(Math.max(0, start - CONTEXT_CHARS), start)
       const suffix = model.text.slice(end, end + CONTEXT_CHARS)
@@ -672,28 +788,76 @@ window.__ModuleLoader__.load({
       return i
     }
 
-    function resolveOffset(text, quote, prefix, suffix, start) {
+    /**
+     * Resolve `quote` inside `text` to `{ start, end }` offsets in `text`.
+     * Supports both exact substring match and whitespace-insensitive matching
+     * (crucial when `quote` contains newlines/tabs between <p> or <td> elements
+     * that do not exist in the concatenated text-node model).
+     */
+    function resolveSpan(text, quote, prefix, suffix, hintStart) {
       const len = quote.length
-      if (len === 0) return null
-      if (text.slice(start, start + len) === quote) return start
+      if (len === 0 || !text) return null
 
+      // 1. Exact offset fast-path
+      if (hintStart >= 0 && text.slice(hintStart, hintStart + len) === quote) {
+        return { start: hintStart, end: hintStart + len }
+      }
+
+      // 2. Exact substring search scored by surrounding context
       let best = -1
       let bestScore = -1
       for (let at = text.indexOf(quote); at !== -1; at = text.indexOf(quote, at + 1)) {
         const before = text.slice(Math.max(0, at - (prefix || '').length), at)
         const after = text.slice(at + len, at + len + (suffix || '').length)
-        const score = commonSuffixLen(prefix || '', before) + commonPrefixLen(suffix || '', after)
+        const score = commonSuffixLen(prefix || '', before) + commonPrefixLen(suffix || '', after) - Math.abs(at - (hintStart || 0)) * 0.001
         if (score > bestScore) {
           bestScore = score
           best = at
         }
       }
-      return best !== -1 ? best : null
+      if (best !== -1) {
+        return { start: best, end: best + len }
+      }
+
+      // 3. Whitespace-insensitive match (for multi-paragraph & table selections)
+      const compactQuote = quote.replace(/\s+/g, '')
+      if (!compactQuote) return null
+      const origIndices = []
+      let compactChars = ''
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i]
+        if (!/\s/.test(ch)) {
+          origIndices.push(i)
+          compactChars += ch
+        }
+      }
+      let cBest = -1
+      let cBestDist = Infinity
+      for (let cAt = compactChars.indexOf(compactQuote); cAt !== -1; cAt = compactChars.indexOf(compactQuote, cAt + 1)) {
+        const origStart = origIndices[cAt]
+        const dist = Math.abs(origStart - (hintStart || 0))
+        if (dist < cBestDist) {
+          cBestDist = dist
+          cBest = cAt
+        }
+      }
+      if (cBest !== -1) {
+        const origStart = origIndices[cBest]
+        const origEnd = origIndices[cBest + compactQuote.length - 1] + 1
+        return { start: origStart, end: origEnd }
+      }
+      return null
+    }
+
+    function seatMatchesItem(seat, item) {
+      const model = buildTextModel(seat)
+      return resolveSpan(model.text, item.quote, item.prefix || '', item.suffix || '', item.start || 0) !== null
     }
 
     function resolveSeatElement(item) {
       if (item.flowKey) {
         const seat = document.querySelector(`[${SEAT_ATTR}="${escapeSelector(item.flowKey)}"]`)
+        if (seat && seatMatchesItem(seat, item)) return seat
         if (seat) return seat
       }
       if (item.nodeKey) {
@@ -701,47 +865,98 @@ window.__ModuleLoader__.load({
         let fallback = null
         for (const c of candidates) {
           if (!fallback) fallback = c
-          if (buildTextModel(c).text.includes(item.quote)) return c
+          if (seatMatchesItem(c, item)) return c
         }
         if (fallback) return fallback
       }
       for (const seat of document.querySelectorAll(`[${SEAT_ATTR}], [${MESSAGE_ATTR}]`)) {
-        if (buildTextModel(seat).text.includes(item.quote)) return seat
+        if (seatMatchesItem(seat, item)) return seat
       }
       return null
     }
 
     function locateBookmarkRange(item, cache) {
       const seat = resolveSeatElement(item)
-      if (!seat) return undefined
+      if (!seat) return { seat: null, range: undefined }
       const key = item.flowKey || item.nodeKey || item.id
       let model = cache ? cache.get(key) : undefined
       if (!model) {
         model = buildTextModel(seat)
         if (cache) cache.set(key, model)
       }
-      const offset = resolveOffset(model.text, item.quote, item.prefix || '', item.suffix || '', item.start || 0)
-      if (offset === null) return undefined
-      return rangeOf(model, offset, offset + item.quote.length)
+      const span = resolveSpan(model.text, item.quote, item.prefix || '', item.suffix || '', item.start || 0)
+      if (!span) return { seat, range: undefined }
+      return { seat, range: rangeOf(model, span.start, span.end) }
     }
 
-    // ── CSS Custom Highlight Painter ─────────────────────────────────────────
-    const HL_NAMES = ['dsh-bm-mark', 'dsh-bm-active']
+    /**
+     * Scroll a DOM Range or Element into the vertical center of the DSH conversation scrollport.
+     * Crucially dispatches a synthetic wheel intent event first so DSH's ChatViewport
+     * releases `followingTail` mode and does not snap the scroll position back to the bottom.
+     */
+    function scrollTargetIntoView(range, fallbackEl) {
+      const anchorNode = range ? range.startContainer : fallbackEl
+      const el = anchorNode && anchorNode.nodeType === 1 ? anchorNode : anchorNode ? anchorNode.parentElement : fallbackEl
+      if (!el) return false
+
+      // If inside a scrollable process group body, scroll that inner container first
+      const innerGroup = el.closest('[data-step-process-body]')
+      if (innerGroup instanceof HTMLElement && innerGroup.scrollHeight > innerGroup.clientHeight) {
+        const targetRect = (range ? range.getBoundingClientRect() : el.getBoundingClientRect())
+        const groupBox = innerGroup.getBoundingClientRect()
+        innerGroup.dispatchEvent(new WheelEvent('wheel', { deltaY: -1, bubbles: true }))
+        innerGroup.scrollTop += targetRect.top - groupBox.top - groupBox.height / 2 + targetRect.height / 2
+      }
+
+      const scroller = el.closest('[data-conversation-scroll]') || document.querySelector('[data-conversation-scroll]')
+      if (!(scroller instanceof HTMLElement)) {
+        el.scrollIntoView({ block: 'center' })
+        return true
+      }
+
+      // Release ChatViewport follow-tail lock
+      scroller.dispatchEvent(new WheelEvent('wheel', { deltaY: -1, bubbles: true }))
+
+      const getRect = () => {
+        if (range) {
+          const r = range.getBoundingClientRect()
+          if (r.width > 0 || r.height > 0) return r
+          const rects = range.getClientRects()
+          if (rects.length > 0) return rects[0]
+        }
+        return (fallbackEl || el).getBoundingClientRect()
+      }
+
+      const alignNow = () => {
+        const rect = getRect()
+        const box = scroller.getBoundingClientRect()
+        const delta = rect.top - box.top - box.height / 2 + Math.min(rect.height, box.height * 0.4) / 2
+        if (Math.abs(delta) > 2) {
+          scroller.scrollTop += delta
+        }
+      }
+
+      alignNow()
+      requestAnimationFrame(alignNow)
+      return true
+    }
+
+    // ── CSS Custom Highlight Painter (Bookmarks + In-Session Search) ─────────
+    const HL_NAMES = ['dsh-bm-mark', 'dsh-bm-active', 'dsh-bm-search', 'dsh-bm-search-active']
 
     function clearHighlights() {
       if (typeof CSS === 'undefined' || !CSS.highlights) return
       for (const n of HL_NAMES) CSS.highlights.delete(n)
     }
 
-    function paintHighlights(items, activeId) {
+    function paintHighlights(items, activeId, searchRanges, activeSearchRange) {
       if (typeof CSS === 'undefined' || !CSS.highlights || typeof Highlight === 'undefined') return
       clearHighlights()
-      if (!items || items.length === 0) return
       const cache = new Map()
       const ranges = []
       let activeRange
-      for (const item of items) {
-        const range = locateBookmarkRange(item, cache)
+      for (const item of items || []) {
+        const { range } = locateBookmarkRange(item, cache)
         if (!range) continue
         ranges.push(range)
         if (item.id === activeId) activeRange = range
@@ -751,6 +966,12 @@ window.__ModuleLoader__.load({
       }
       if (activeRange) {
         CSS.highlights.set('dsh-bm-active', new Highlight(activeRange))
+      }
+      if (searchRanges && searchRanges.length > 0) {
+        CSS.highlights.set('dsh-bm-search', new Highlight(...searchRanges))
+      }
+      if (activeSearchRange) {
+        CSS.highlights.set('dsh-bm-search-active', new Highlight(activeSearchRange))
       }
     }
 
@@ -763,6 +984,10 @@ window.__ModuleLoader__.load({
         this.activeId = undefined
         this.justCreatedId = undefined
         this.pendingRevealId = undefined
+        this.findOpen = false
+        this.findQuery = ''
+        this.findIndex = 0
+        this.findRanges = []
         this.inputFacts = { draft: '', phase: 'plain', occurrences: 0, actions: undefined }
         this.listeners = new Set()
         this.snapshot = this.buildSnapshot()
@@ -796,6 +1021,10 @@ window.__ModuleLoader__.load({
           currentSessionItems,
           activeId: this.activeId,
           justCreatedId: this.justCreatedId,
+          findOpen: this.findOpen,
+          findQuery: this.findQuery,
+          findIndex: this.findIndex,
+          findCount: this.findRanges.length,
           sessionTitles: new Map(this.sessionTitles),
         }
       }
@@ -836,6 +1065,8 @@ window.__ModuleLoader__.load({
           this.sessionId = sessionId
           this.activeId = undefined
           this.justCreatedId = undefined
+          this.findRanges = []
+          this.findIndex = 0
           changed = true
         }
         if (changed) this.publish()
@@ -853,20 +1084,91 @@ window.__ModuleLoader__.load({
         }
       }
 
+      computeSearchRanges() {
+        if (!this.findOpen || !this.findQuery.trim()) {
+          this.findRanges = []
+          return
+        }
+        const needle = this.findQuery.trim().toLowerCase()
+        const len = needle.length
+        const found = []
+        const seats = document.querySelectorAll(`[${SEAT_ATTR}]:not([hidden])`)
+        const targets = seats.length > 0 ? seats : document.querySelectorAll(`[${MESSAGE_ATTR}]:not([hidden])`)
+        for (const seat of targets) {
+          const model = buildTextModel(seat)
+          const hay = model.text.toLowerCase()
+          let from = 0
+          while (from <= hay.length - len) {
+            const idx = hay.indexOf(needle, from)
+            if (idx === -1) break
+            const r = rangeOf(model, idx, idx + len)
+            if (r) found.push(r)
+            from = idx + len
+          }
+        }
+        this.findRanges = found
+        if (this.findIndex >= found.length) {
+          this.findIndex = found.length > 0 ? 0 : 0
+        }
+      }
+
       repaintCurrentSession() {
         if (!this.sessionId) {
           clearHighlights()
           return
         }
+        const prevCount = this.findRanges.length
+        this.computeSearchRanges()
         const list = this.items.filter(x => x.sessionId === this.sessionId)
-        paintHighlights(list, this.activeId)
+        const activeSearch = this.findRanges[this.findIndex]
+        paintHighlights(list, this.activeId, this.findRanges, activeSearch)
+        if (prevCount !== this.findRanges.length) {
+          this.publish()
+        }
         if (this.pendingRevealId) {
           const target = list.find(x => x.id === this.pendingRevealId)
-          if (target && locateBookmarkRange(target)) {
-            const id = this.pendingRevealId
-            this.pendingRevealId = undefined
-            this.reveal(id)
+          if (target) {
+            const { seat, range } = locateBookmarkRange(target)
+            if (range || seat) {
+              const id = this.pendingRevealId
+              this.pendingRevealId = undefined
+              this.reveal(id)
+            }
           }
+        }
+      }
+
+      toggleFind(open) {
+        const next = open === undefined ? !this.findOpen : Boolean(open)
+        if (this.findOpen === next && next) return
+        this.findOpen = next
+        if (!next) {
+          this.findRanges = []
+        }
+        this.repaintCurrentSession()
+        this.publish()
+      }
+
+      setFindQuery(query) {
+        this.findQuery = query
+        this.findIndex = 0
+        this.repaintCurrentSession()
+        this.publish()
+        const activeRange = this.findRanges[0]
+        if (activeRange) {
+          scrollTargetIntoView(activeRange, null)
+        }
+      }
+
+      stepFind(delta) {
+        const total = this.findRanges.length
+        if (total === 0) return
+        this.findIndex = (this.findIndex + delta + total) % total
+        this.repaintCurrentSession()
+        this.publish()
+        const activeRange = this.findRanges[this.findIndex]
+        if (activeRange) {
+          scrollTargetIntoView(activeRange, null)
         }
       }
 
@@ -938,22 +1240,9 @@ window.__ModuleLoader__.load({
         this.activeId = id
         this.publish()
         this.repaintCurrentSession()
-        const range = locateBookmarkRange(item)
-        if (!range) return false
-        const el = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement
-        if (!el) return false
-        const scroller = el.closest('[data-conversation-scroll]')
-        if (scroller instanceof HTMLElement) {
-          const rect = range.getBoundingClientRect()
-          const box = scroller.getBoundingClientRect()
-          scroller.scrollBy({
-            top: rect.top - box.top - box.height / 2 + rect.height / 2,
-            behavior: 'smooth',
-          })
-        } else {
-          el.scrollIntoView({ block: 'center', behavior: 'smooth' })
-        }
-        return true
+        const { seat, range } = locateBookmarkRange(item)
+        if (!range && !seat) return false
+        return scrollTargetIntoView(range, seat)
       }
 
       insertIntoComposer(item) {
@@ -1152,17 +1441,27 @@ window.__ModuleLoader__.load({
         }
       }
 
+      // Keyboard shortcuts:
+      // - Cmd/Ctrl + F: open in-conversation Find bar
+      // - Alt + B: toggle All Bookmarks page
       ctx.effect(() => {
         const onKeyDown = (e) => {
           if (e.altKey && !e.ctrlKey && !e.metaKey && e.code === 'KeyB') {
             e.preventDefault()
             const cur = ctx.layout.panelInfo.getSnapshot().activePanelId
             ctx.layout.selectPanel(cur === PANEL_ID ? null : PANEL_ID)
+            return
+          }
+          if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.code === 'KeyF') {
+            if (document.querySelector('[data-conversation-scroll]')) {
+              e.preventDefault()
+              store.toggleFind(true)
+            }
           }
         }
         window.addEventListener('keydown', onKeyDown)
         return () => window.removeEventListener('keydown', onKeyDown)
-      }, 'dsh-bookmark: shortcut')
+      }, 'dsh-bookmark: shortcuts')
 
       // 1. Right-Sidebar Tab Type + Body + Title
       const disposeTabType = ctx.sidebarRightTabs.register({
@@ -1243,7 +1542,7 @@ window.__ModuleLoader__.load({
                 `${t('side.allBtn')} ›`
               )
             ),
-            allSessionItems.length > 2 &&
+            allSessionItems.length > 1 &&
               h('input', {
                 type: 'search',
                 className: 'dshbm-input',
@@ -1301,7 +1600,7 @@ window.__ModuleLoader__.load({
         )
       )
 
-      // 2. Composer Dock Pill
+      // 2. Composer Dock Pill (Bookmark + Find)
       function ComposerBookmarkPill(props) {
         const { sessionId, inputActions, useInput, useSessions, t } = props
         const draft = useInput ? useInput(s => s.draft) : ''
@@ -1321,16 +1620,31 @@ window.__ModuleLoader__.load({
 
         const count = snap.items.filter(x => x.sessionId === sessionId).length
         return h(
-          'button',
-          {
-            type: 'button',
-            className: 'dshbm-pill',
-            title: t('pill.tip'),
-            onClick: openSessionBookmarkTab,
-          },
-          h(BookmarkSvg, { size: 13, filled: count > 0 }),
-          h('span', null, t('pill.label')),
-          count > 0 && h('span', { className: 'dshbm-pill-count' }, String(count))
+          'span',
+          { className: 'dshbm-dock-group' },
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dshbm-pill',
+              title: t('pill.tip'),
+              onClick: openSessionBookmarkTab,
+            },
+            h(BookmarkSvg, { size: 13, filled: count > 0 }),
+            h('span', null, t('pill.label')),
+            count > 0 && h('span', { className: 'dshbm-pill-count' }, String(count))
+          ),
+          h(
+            'button',
+            {
+              type: 'button',
+              className: 'dshbm-pill',
+              title: t('find.tip'),
+              onClick: () => store.toggleFind(),
+            },
+            h(SearchSvg, { size: 13 }),
+            h('span', null, t('find.label'))
+          )
         )
       }
 
@@ -1346,10 +1660,18 @@ window.__ModuleLoader__.load({
         )
       )
 
-      // 3. Single-Action Minimal Right-Click Menu + Highlight Observer
+      // 3. Single-Action Minimal Right-Click Menu + In-Session Find Bar + Highlight Observer
       function SelectionOverlay({ t }) {
         const snap = useSyncExternalStore(store.subscribe, store.getSnapshot)
         const [menu, setMenu] = useState(null)
+        const findInputRef = useRef(null)
+
+        useEffect(() => {
+          if (snap.findOpen && findInputRef.current) {
+            findInputRef.current.focus()
+            findInputRef.current.select()
+          }
+        }, [snap.findOpen])
 
         useEffect(() => {
           const onContextMenu = (e) => {
@@ -1384,7 +1706,10 @@ window.__ModuleLoader__.load({
           }
 
           const onKeyDown = (e) => {
-            if (e.key === 'Escape') setMenu(null)
+            if (e.key === 'Escape') {
+              setMenu(null)
+              if (store.findOpen) store.toggleFind(false)
+            }
           }
 
           document.addEventListener('contextmenu', onContextMenu)
@@ -1417,8 +1742,6 @@ window.__ModuleLoader__.load({
           }
         }, [])
 
-        if (!menu) return null
-
         const handleAction = () => {
           const current = menu
           setMenu(null)
@@ -1438,24 +1761,94 @@ window.__ModuleLoader__.load({
         }
 
         return h(
-          'div',
-          {
-            className: 'dshbm-context-menu',
-            'data-dsh-bm-ui': 'true',
-            'data-dsh-bm-menu': 'true',
-            style: { left: `${menu.x}px`, top: `${menu.y}px` },
-          },
-          h(
-            'button',
-            {
-              type: 'button',
-              className: 'dshbm-menu-item',
-              'data-danger': menu.overlap ? 'true' : undefined,
-              onClick: handleAction,
-            },
-            h(BookmarkSvg, { size: 14, filled: !menu.overlap }),
-            h('span', null, menu.overlap ? t('menu.remove') : t('menu.bookmark'))
-          )
+          Fragment,
+          null,
+          snap.findOpen &&
+            h(
+              'div',
+              {
+                className: 'dshbm-find-bar',
+                'data-dsh-bm-ui': 'true',
+              },
+              h(SearchSvg, { size: 14 }),
+              h('input', {
+                ref: findInputRef,
+                type: 'text',
+                className: 'dshbm-find-input',
+                value: snap.findQuery,
+                placeholder: t('find.placeholder'),
+                onChange: e => store.setFindQuery(e.target.value),
+                onKeyDown: e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    store.stepFind(e.shiftKey ? -1 : 1)
+                  }
+                  if (e.key === 'Escape') {
+                    e.stopPropagation()
+                    store.toggleFind(false)
+                  }
+                },
+              }),
+              snap.findQuery.trim() !== '' &&
+                h(
+                  'span',
+                  { className: 'dshbm-find-count' },
+                  snap.findCount > 0 ? `${snap.findIndex + 1}/${snap.findCount}` : '0/0'
+                ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dshbm-find-btn',
+                  disabled: snap.findCount === 0,
+                  title: t('find.prev'),
+                  onClick: () => store.stepFind(-1),
+                },
+                '↑'
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dshbm-find-btn',
+                  disabled: snap.findCount === 0,
+                  title: t('find.next'),
+                  onClick: () => store.stepFind(1),
+                },
+                '↓'
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dshbm-find-btn',
+                  title: t('find.close'),
+                  onClick: () => store.toggleFind(false),
+                },
+                '×'
+              )
+            ),
+          menu &&
+            h(
+              'div',
+              {
+                className: 'dshbm-context-menu',
+                'data-dsh-bm-ui': 'true',
+                'data-dsh-bm-menu': 'true',
+                style: { left: `${menu.x}px`, top: `${menu.y}px` },
+              },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dshbm-menu-item',
+                  'data-danger': menu.overlap ? 'true' : undefined,
+                  onClick: handleAction,
+                },
+                h(BookmarkSvg, { size: 14, filled: !menu.overlap }),
+                h('span', null, menu.overlap ? t('menu.remove') : t('menu.bookmark'))
+              )
+            )
         )
       }
 
@@ -1553,7 +1946,7 @@ window.__ModuleLoader__.load({
             setTimeout(() => {
               openSessionBookmarkTab()
               if (bookmarkId) store.reveal(bookmarkId)
-            }, 200)
+            }, 220)
           } catch (err) {
             console.warn('[dsh-bookmark] jumpToSession failed:', err)
           }
